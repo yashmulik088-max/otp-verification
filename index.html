@@ -1,1 +1,93 @@
-b
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>OTP Verification V3</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <div class="small-title">COMPONENT · 89</div>
+
+        <h1>OTP Verification v3</h1>
+
+        <div class="otp-card">
+
+            <div class="handle"></div>
+
+            <h2>Verify your number</h2>
+
+            <p class="description">
+                Enter the 4-digit code we sent to
+                <span>+1 415 ••• 0142</span>.
+            </p>
+
+            <!-- Circular OTP -->
+            <div class="otp-orbit">
+
+                <div class="orbit-line"></div>
+
+                <input
+                    type="text"
+                    maxlength="1"
+                    class="otp-input top"
+                    inputmode="numeric"
+                    autocomplete="one-time-code"
+                >
+
+                <input
+                    type="text"
+                    maxlength="1"
+                    class="otp-input left"
+                    inputmode="numeric"
+                >
+
+                <input
+                    type="text"
+                    maxlength="1"
+                    class="otp-input right"
+                    inputmode="numeric"
+                >
+
+                <input
+                    type="text"
+                    maxlength="1"
+                    class="otp-input bottom"
+                    inputmode="numeric"
+                >
+
+                <div class="center-dot"></div>
+
+            </div>
+
+            <div class="resend">
+                Didn't receive the code?
+                <button id="resendBtn" disabled>
+                    Resend in <span id="timer">23</span>s
+                </button>
+            </div>
+
+            <button id="verifyBtn" class="verify-btn">
+                Verify OTP
+            </button>
+
+            <p id="message"></p>
+
+        </div>
+
+        <div class="hint">
+            Type it, paste it, or let the message fill it — <b>4719</b> is the demo code.
+        </div>
+
+    </div>
+
+    <script src="app.js"></script>
+
+</body>
+</html>
