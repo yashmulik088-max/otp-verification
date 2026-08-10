@@ -5,7 +5,7 @@
 
 // DEMO OTP
 
-const correctOTP = "4719";
+const correctOTP = "0236";
 
 
 // OTP INPUTS
