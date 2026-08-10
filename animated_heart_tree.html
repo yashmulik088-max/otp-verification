@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Animated Heart Tree</title>
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+body {
+    background: linear-gradient(#fffafc, #fff0f6);
+    font-family: Georgia, serif;
+}
+
+canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Birthday Text */
+#text {
+    position: absolute;
+    left: 7%;
+    bottom: 8%;
+    color: #c2185b;
+    pointer-events: none;
+}
+
+#text .small {
+    font: 14px Arial, sans-serif;
+    letter-spacing: 2px;
+    color: #8c6072;
+    margin-left: 5px;
+}
+
+#text h1 {
+    margin: 5px 0 0;
+    font-size: clamp(45px, 7vw, 95px);
+    font-weight: normal;
+    font-style: italic;
+}
+
+#text p {
+    margin: 12px 0 0 6px;
+    color: #986b7d;
+    font-size: clamp(14px, 1.7vw, 22px);
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="tree"></canvas>
+
+<div id="text">
+    <div class="small">MAKE IT COUNT</div>
+
+    <h1>Happy Birthday</h1>
+
+    <p>Here's to a year that blooms ✨</p>
+</div>
+
+<script>
+
+const canvas = document.getElementById("tree");
+const ctx = canvas.getContext("2d");
+
+let W, H, dpr;
+
+let branches = [];
+let blossoms = [];
+let falling = [];
+
+let startTime = performance.now();
+
+
+/* =========================
+   SCREEN SIZE
+========================= */
+
+function resize() {
+
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    W = window.innerWidth;
+    H = window.innerHeight;
+
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+}
+
+window.addEventListener("resize", resize);
+
+resize();
+
+
+/* =========================
+   BRANCH CREATION
+========================= */
+
+function branch(
+    x,
+    y,
+    len,
+    angle,
+    width,
+    depth,
+    delay
+) {
+
+    branches.push({
+        x: x,
+        y: y,
+        len: len,
+        angle: angle,
+        width: width,
+        depth: depth,
+        delay: delay
+    });
+
+
+    if (depth <= 0) {
+
+        for (let i = 0; i < 3; i++) {
+
+            blossoms.push({
+
+                x: x + Math.cos(angle) * len,
+
+                y: y + Math.sin(angle) * len,
+
+                size: 4 + Math.random() * 5,
+
+                delay: delay + 0.15 + i * 0.05,
+
+                rot: Math.random() * Math.PI
+            });
+        }
+
+        return;
+    }
+
+
+    const endX =
+        x + Math.cos(angle) * len;
+
+    const endY =
+        y + Math.sin(angle) * len;
+
+
+    const spread =
+        0.35 + Math.random() * 0.18;
+
+    const nextLength =
+        len * (0.68 + Math.random() * 0.08);
+
+
+    /* Left branch */
+
+    branch(
+        endX,
+        endY,
+        nextLength,
+        angle - spread,
+        width * 0.72,
+        depth - 1,
+        delay + 0.08
+    );
+
+
+    /* Right branch */
+
+    branch(
+        endX,
+        endY,
+        nextLength,
+        angle + spread,
+        width * 0.72,
+        depth - 1,
+        delay + 0.12
+    );
+
+
+    /* Extra branch */
+
+    if (
+        depth >= 3 &&
+        Math.random() > 0.25
+    ) {
+
+        branch(
+            endX,
+            endY,
+            nextLength * 0.85,
+            angle +
+            (Math.random() - 0.5) * 0.18,
+            width * 0.65,
+            depth - 1,
+            delay + 0.15
+        );
+    }
+}
+
+
+/* =========================
+   BUILD TREE
+========================= */
+
+function buildTree() {
+
+    branches = [];
+    blossoms = [];
+    falling = [];
+
+    const baseX = W * 0.70;
+    const baseY = H * 0.92;
+
+    const scale =
+        Math.min(W / 900, H / 800);
+
+
+    branch(
+        baseX,
+        baseY,
+        150 * scale,
+        -Math.PI / 2,
+        15 * scale,
+        6,
+        0
+    );
+}
+
+buildTree();
+
+window.addEventListener(
+    "resize",
+    buildTree
+);
+
+
+/* =========================
+   EASING
+========================= */
+
+function ease(t) {
+
+    t = Math.max(
+        0,
+        Math.min(1, t)
+    );
+
+    return 1 - Math.pow(1 - t, 3);
+}
+
+
+/* =========================
+   HEART DRAWING
+========================= */
+
+function drawHeart(
+    x,
+    y,
+    s,
+    rot,
+    alpha
+) {
+
+    ctx.save();
+
+    ctx.translate(x, y);
+
+    ctx.rotate(rot);
+
+    ctx.globalAlpha = alpha;
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        0,
+        s * 0.9
+    );
+
+
+    ctx.bezierCurveTo(
+        -s * 1.7,
+        -s * 0.15,
+
+        -s * 0.9,
+        -s * 1.25,
+
+        0,
+        -s * 0.45
+    );
+
+
+    ctx.bezierCurveTo(
+        s * 0.9,
+        -s * 1.25,
+
+        s * 1.7,
+        -s * 0.15,
+
+        0,
+        s * 0.9
+    );
+
+
+    const colors = [
+
+        "#e91e63",
+        "#f06292",
+        "#ec407a",
+        "#ff80ab",
+        "#d81b60",
+        "#ffd166"
+
+    ];
+
+
+    ctx.fillStyle =
+        colors[
+            Math.floor(
+                Math.random() *
+                colors.length
+            )
+        ];
+
+
+    ctx.fill();
+
+    ctx.restore();
+}
+
+
+/* =========================
+   MAIN ANIMATION
+========================= */
+
+function draw() {
+
+    ctx.clearRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    /* Background glow */
+
+    const glow =
+        ctx.createRadialGradient(
+            W * 0.70,
+            H * 0.42,
+            10,
+            W * 0.70,
+            H * 0.42,
+            Math.min(W, H) * 0.42
+        );
+
+
+    glow.addColorStop(
+        0,
+        "rgba(255,150,195,.18)"
+    );
+
+    glow.addColorStop(
+        1,
+        "rgba(255,150,195,0)"
+    );
+
+
+    ctx.fillStyle = glow;
+
+    ctx.fillRect(
+        0,
+        0,
+        W,
+        H
+    );
+
+
+    const elapsed =
+        (performance.now() -
+            startTime) / 1000;
+
+
+    /* =========================
+       GROUND
+    ========================= */
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        0,
+        H * 0.93
+    );
+
+    ctx.quadraticCurveTo(
+        W * 0.45,
+        H * 0.89,
+        W,
+        H * 0.94
+    );
+
+    ctx.strokeStyle =
+        "rgba(120,80,90,.15)";
+
+    ctx.lineWidth = 2;
+
+    ctx.stroke();
+
+
+    /* =========================
+       TREE BRANCHES
+    ========================= */
+
+    for (const b of branches) {
+
+        const progress =
+            ease(
+                (elapsed - b.delay) /
+                1.15
+            );
+
+
+        if (progress <= 0) {
+            continue;
+        }
+
+
+        const length =
+            b.len * progress;
+
+
+        const endX =
+            b.x +
+            Math.cos(b.angle) *
+            length;
+
+
+        const endY =
+            b.y +
+            Math.sin(b.angle) *
+            length;
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            b.x,
+            b.y
+        );
+
+        ctx.lineTo(
+            endX,
+            endY
+        );
+
+
+        ctx.strokeStyle =
+            b.depth > 2
+                ? "#33262a"
+                : "#4a3034";
+
+
+        ctx.lineWidth =
+            Math.max(
+                1,
+                b.width *
+                (1 - progress * 0.08)
+            );
+
+
+        ctx.lineCap = "round";
+
+        ctx.stroke();
+    }
+
+
+    /* =========================
+       HEART FLOWERS
+    ========================= */
+
+    for (const p of blossoms) {
+
+        const progress =
+            ease(
+                (elapsed - p.delay) /
+                0.75
+            );
+
+
+        if (progress <= 0) {
+            continue;
+        }
+
+
+        /* Five hearts around center */
+
+        for (let i = 0; i < 5; i++) {
+
+            const angle =
+                i * Math.PI * 2 / 5;
+
+
+            const offsetX =
+                Math.cos(angle) *
+                p.size *
+                0.65 *
+                progress;
+
+
+            const offsetY =
+                Math.sin(angle) *
+                p.size *
+                0.65 *
+                progress;
+
+
+            drawHeart(
+
+                p.x + offsetX,
+
+                p.y + offsetY,
+
+                p.size * 0.72,
+
+                angle - 0.5,
+
+                progress
+            );
+        }
+
+
+        /* Center heart */
+
+        drawHeart(
+            p.x,
+            p.y,
+            p.size * 0.72,
+            0,
+            progress
+        );
+    }
+
+
+    /* =========================
+       FALLING HEARTS
+    ========================= */
+
+    if (Math.random() < 0.07) {
+
+        falling.push({
+
+            x: Math.random() * W,
+
+            y: -20,
+
+            vy:
+                35 +
+                Math.random() * 55,
+
+            vx:
+                -15 +
+                Math.random() * 30,
+
+            size:
+                5 +
+                Math.random() * 7,
+
+            rot:
+                Math.random() * 6
+        });
+    }
+
+
+    for (
+        let i = falling.length - 1;
+        i >= 0;
+        i--
+    ) {
+
+        const f = falling[i];
+
+
+        f.y += f.vy / 60;
+
+        f.x += f.vx / 60;
+
+        f.rot += 0.01;
+
+
+        drawHeart(
+            f.x,
+            f.y,
+            f.size,
+            f.rot,
+            0.65
+        );
+
+
+        if (f.y > H + 30) {
+
+            falling.splice(i, 1);
+        }
+    }
+
+
+    requestAnimationFrame(draw);
+}
+
+
+/* Start animation */
+
+draw();
+
+</script>
+
+</body>
+</html>
