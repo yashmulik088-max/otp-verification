@@ -1,20 +1,32 @@
 // ==========================================
-// OTP VERIFICATION V3
+// OTP VERIFICATION
 // ==========================================
 
-// Demo OTP
+
+// DEMO OTP
+
 const correctOTP = "4719";
 
 
-// Get all OTP input boxes
-const inputs = document.querySelectorAll(".otp-input");
+// OTP INPUTS
+
+const inputs =
+    document.querySelectorAll(".otp-input");
 
 
-// Get buttons and elements
-const verifyBtn = document.getElementById("verifyBtn");
-const resendBtn = document.getElementById("resendBtn");
-const timerElement = document.getElementById("timer");
-const message = document.getElementById("message");
+// ELEMENTS
+
+const verifyBtn =
+    document.getElementById("verifyBtn");
+
+const resendBtn =
+    document.getElementById("resendBtn");
+
+const timerElement =
+    document.getElementById("timer");
+
+const message =
+    document.getElementById("message");
 
 
 // ==========================================
@@ -23,45 +35,70 @@ const message = document.getElementById("message");
 
 inputs.forEach((input, index) => {
 
-    // Allow only numbers
     input.addEventListener("input", function () {
 
-        this.value = this.value.replace(/[^0-9]/g, "");
+        // Numbers only
 
-        if (this.value.length === 1) {
-
-            // Move to next input
-            if (index < inputs.length - 1) {
-                inputs[index + 1].focus();
-            }
-        }
-
-        checkComplete();
-    });
+        this.value =
+            this.value.replace(/[^0-9]/g, "");
 
 
-    // Backspace handling
-    input.addEventListener("keydown", function (event) {
+        // Move to next box
 
-        if (event.key === "Backspace" && this.value === "") {
-
-            if (index > 0) {
-                inputs[index - 1].focus();
-            }
-        }
-
-        // Move left with ArrowLeft
-        if (event.key === "ArrowLeft" && index > 0) {
-            inputs[index - 1].focus();
-        }
-
-        // Move right with ArrowRight
-        if (event.key === "ArrowRight" &&
-            index < inputs.length - 1) {
+        if (
+            this.value.length === 1 &&
+            index < inputs.length - 1
+        ) {
 
             inputs[index + 1].focus();
+
         }
+
     });
+
+
+    // BACKSPACE
+
+    input.addEventListener(
+        "keydown",
+        function (event) {
+
+            if (
+                event.key === "Backspace" &&
+                this.value === "" &&
+                index > 0
+            ) {
+
+                inputs[index - 1].focus();
+
+            }
+
+
+            // LEFT
+
+            if (
+                event.key === "ArrowLeft" &&
+                index > 0
+            ) {
+
+                inputs[index - 1].focus();
+
+            }
+
+
+            // RIGHT
+
+            if (
+                event.key === "ArrowRight" &&
+                index < inputs.length - 1
+            ) {
+
+                inputs[index + 1].focus();
+
+            }
+
+        }
+    );
 
 });
 
@@ -70,30 +107,43 @@ inputs.forEach((input, index) => {
 // PASTE OTP
 // ==========================================
 
-inputs[0].addEventListener("paste", function (event) {
+inputs[0].addEventListener(
+    "paste",
+    function (event) {
 
-    event.preventDefault();
+        event.preventDefault();
 
-    const pastedData =
-        event.clipboardData
-            .getData("text")
-            .replace(/[^0-9]/g, "")
-            .slice(0, 4);
 
-    pastedData.split("").forEach((number, index) => {
+        const pasted =
+            event.clipboardData
+                .getData("text")
+                .replace(/[^0-9]/g, "")
+                .slice(0, 4);
 
-        if (inputs[index]) {
-            inputs[index].value = number;
+
+        pasted.split("").forEach(
+            (number, index) => {
+
+                if (inputs[index]) {
+
+                    inputs[index].value = number;
+
+                }
+
+            }
+        );
+
+
+        if (pasted.length > 0) {
+
+            inputs[
+                Math.min(pasted.length - 1, 3)
+            ].focus();
+
         }
 
-    });
-
-    if (pastedData.length > 0) {
-        inputs[Math.min(pastedData.length - 1, 3)].focus();
     }
-
-    checkComplete();
-});
+);
 
 
 // ==========================================
@@ -105,7 +155,9 @@ function getOTP() {
     let otp = "";
 
     inputs.forEach(input => {
+
         otp += input.value;
+
     });
 
     return otp;
@@ -113,158 +165,227 @@ function getOTP() {
 
 
 // ==========================================
-// CHECK OTP COMPLETE
-// ==========================================
-
-function checkComplete() {
-
-    const otp = getOTP();
-
-    if (otp.length === 4) {
-
-        verifyBtn.disabled = false;
-
-    } else {
-
-        verifyBtn.disabled = false;
-    }
-}
-
-
-// ==========================================
 // VERIFY OTP
 // ==========================================
 
-verifyBtn.addEventListener("click", function () {
+verifyBtn.addEventListener(
+    "click",
+    function () {
 
-    const otp = getOTP();
+        const otp = getOTP();
 
-    message.classList.remove("success", "error");
 
-    if (otp.length !== 4) {
+        // CLEAR MESSAGE
 
-        message.textContent =
-            "Please enter all 4 digits.";
+        message.classList.remove(
+            "success",
+            "error"
+        );
 
-        message.classList.add("error");
 
-        return;
+        // CHECK LENGTH
+
+        if (otp.length !== 4) {
+
+            message.textContent =
+                "Please enter all 4 digits.";
+
+            message.classList.add("error");
+
+            return;
+        }
+
+
+        // ======================================
+        // CORRECT OTP
+        // ======================================
+
+        if (otp === correctOTP) {
+
+            message.textContent =
+                "✓ OTP verified successfully!";
+
+            message.classList.add("success");
+
+
+            // Disable inputs
+
+            inputs.forEach(input => {
+
+                input.disabled = true;
+
+            });
+
+
+            // Disable verify button
+
+            verifyBtn.disabled = true;
+
+
+            // ==================================
+            // OPEN BIRTHDAY PAGE
+            // ==================================
+
+            setTimeout(() => {
+
+                window.location.href =
+                    "animated_heart_tree.html";
+
+            }, 1500);
+
+        }
+
+
+        // ======================================
+        // WRONG OTP
+        // ======================================
+
+        else {
+
+            message.textContent =
+                "Incorrect OTP. Please try again.";
+
+            message.classList.add("error");
+
+
+            // Clear boxes
+
+            inputs.forEach(input => {
+
+                input.value = "";
+
+            });
+
+
+            inputs[0].focus();
+
+        }
+
     }
-
-
-    if (otp === correctOTP) {
-
-        message.textContent =
-            "✓ OTP verified successfully!";
-
-        message.classList.add("success");
-
-        // Disable inputs
-        inputs.forEach(input => {
-            input.disabled = true;
-        });
-
-        verifyBtn.disabled = true;
-
-    } else {
-
-        message.textContent =
-            "Incorrect OTP. Please try again.";
-
-        message.classList.add("error");
-
-        // Clear inputs
-        inputs.forEach(input => {
-            input.value = "";
-        });
-
-        inputs[0].focus();
-    }
-});
+);
 
 
 // ==========================================
-// COUNTDOWN
+// RESEND TIMER
 // ==========================================
 
 let timeLeft = 23;
 
-let countdown = setInterval(() => {
+
+let countdown =
+    setInterval(updateTimer, 1000);
+
+
+function updateTimer() {
 
     timeLeft--;
 
-    timerElement.textContent = timeLeft;
+    timerElement.textContent =
+        timeLeft;
+
 
     if (timeLeft <= 0) {
 
         clearInterval(countdown);
 
+
         resendBtn.disabled = false;
 
         resendBtn.classList.add("active");
 
-        resendBtn.innerHTML = "Resend OTP";
+        resendBtn.innerHTML =
+            "Resend OTP";
+
     }
 
-}, 1000);
+}
 
 
 // ==========================================
 // RESEND OTP
 // ==========================================
 
-resendBtn.addEventListener("click", function () {
+resendBtn.addEventListener(
+    "click",
+    function () {
 
-    if (resendBtn.disabled) {
-        return;
-    }
+        if (resendBtn.disabled) {
 
-    // Clear previous OTP
-    inputs.forEach(input => {
-        input.value = "";
-        input.disabled = false;
-    });
+            return;
 
-    inputs[0].focus();
-
-    message.textContent =
-        "A new OTP has been sent.";
-
-    message.classList.remove("error");
-    message.classList.add("success");
-
-
-    // Restart timer
-    timeLeft = 23;
-
-    resendBtn.disabled = true;
-    resendBtn.classList.remove("active");
-
-    resendBtn.innerHTML =
-        `Resend in <span id="timer">${timeLeft}</span>s`;
-
-    // Get new timer element
-    const newTimer =
-        document.getElementById("timer");
-
-
-    countdown = setInterval(() => {
-
-        timeLeft--;
-
-        newTimer.textContent = timeLeft;
-
-        if (timeLeft <= 0) {
-
-            clearInterval(countdown);
-
-            resendBtn.disabled = false;
-
-            resendBtn.classList.add("active");
-
-            resendBtn.innerHTML = "Resend OTP";
         }
 
-    }, 1000);
 
-});
+        // Clear OTP
+
+        inputs.forEach(input => {
+
+            input.value = "";
+
+            input.disabled = false;
+
+        });
+
+
+        // Focus first box
+
+        inputs[0].focus();
+
+
+        // Message
+
+        message.textContent =
+            "A new OTP has been sent.";
+
+        message.classList.remove("error");
+
+        message.classList.add("success");
+
+
+        // Reset timer
+
+        timeLeft = 23;
+
+
+        resendBtn.disabled = true;
+
+        resendBtn.classList.remove("active");
+
+
+        resendBtn.innerHTML =
+            `Resend in <span id="timer">23</span>s`;
+
+
+        // Get new timer
+
+        const newTimer =
+            document.getElementById("timer");
+
+
+        countdown =
+            setInterval(() => {
+
+                timeLeft--;
+
+                newTimer.textContent =
+                    timeLeft;
+
+
+                if (timeLeft <= 0) {
+
+                    clearInterval(countdown);
+
+
+                    resendBtn.disabled = false;
+
+                    resendBtn.classList.add("active");
+
+                    resendBtn.innerHTML =
+                        "Resend OTP";
+
+                }
+
+            }, 1000);
+
+    }
+);
